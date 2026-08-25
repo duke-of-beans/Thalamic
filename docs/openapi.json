@@ -1,0 +1,2385 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "PLEXUS Intelligence",
+    "description": "The universal intelligence API. Any domain, any question \u2014 synthesized from the world's knowledge sources, payable per call in USDC.",
+    "x-long-description": "PLEXUS is the intelligence layer between raw data and decisions that matter.\n\nMost APIs give you a database lookup. PLEXUS gives you a verdict. Query any entity, topic, or question and get back synthesized intelligence drawn from across the world's knowledge \u2014 regulatory records, court filings, scientific literature, financial data, legal databases, cultural archives, historical records, and more \u2014 in a single call.\n\nINTELLIGENCE PRODUCTS\nScored, synthesized reports that combine multiple sources into a single 0-100 signal with per-source breakdown. Company risk, political exposure, supply chain screening, healthcare due diligence, nonprofit transparency. One call, one verdict.\n\nDATA ADAPTERS\nDirect normalized access to hundreds of data sources across government, science, law, finance, health, environment, history, and culture. Same interface, every source.\n\nAI REASONING ENGINES\nProprietary cognitive tools built for agent pipelines: adversarial deliberation, quality scoring, claim verification, safety gating, gap detection, signal diversity analysis. The thinking layer your pipeline is missing.\n\nTWO WAYS TO ACCESS\nx402 protocol \u2014 pay per call in USDC on Base mainnet, no API keys, no accounts. Agents discover and pay autonomously.\nRapidAPI \u2014 traditional subscription tiers for teams that prefer key-based billing.\n\nBuilt by Silent Ampersand LLC.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Silent Ampersand LLC",
+      "url": "https://silentampersand.com"
+    }
+  },
+  "x-documentation": {
+    "tutorials": [
+      {
+        "title": "Automate Company Due Diligence in One API Call",
+        "url": "https://github.com/duke-of-beans/plexus/blob/main/docs/tutorials/company-due-diligence.md"
+      },
+      {
+        "title": "Build a Nonprofit Transparency Checker",
+        "url": "https://github.com/duke-of-beans/plexus/blob/main/docs/tutorials/nonprofit-transparency.md"
+      },
+      {
+        "title": "Add AI Safety Gates to Your Agent Pipeline",
+        "url": "https://github.com/duke-of-beans/plexus/blob/main/docs/tutorials/ai-safety-gates.md"
+      }
+    ]
+  },
+  "servers": [
+    {
+      "url": "https://plexus-public-production.up.railway.app"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Intelligence Products",
+      "description": "Scored, synthesized intelligence reports combining 4-6 data sources. The premium endpoints."
+    },
+    {
+      "name": "Government Data",
+      "description": "Direct access to 15+ federal agency data sources."
+    },
+    {
+      "name": "Financial Data",
+      "description": "SEC, CFPB, ProPublica 990, GLEIF, FDIC."
+    },
+    {
+      "name": "Healthcare Data",
+      "description": "NPI, CMS Medicare, FDA, ClinicalTrials.gov."
+    },
+    {
+      "name": "Legal Data",
+      "description": "CourtListener federal court records."
+    },
+    {
+      "name": "Compliance Data",
+      "description": "OpenSanctions screening."
+    },
+    {
+      "name": "AI Reasoning Engines",
+      "description": "12 proprietary cognitive tools for AI agent pipelines."
+    },
+    {
+      "name": "Data Extraction",
+      "description": "Web extraction with optional LLM schema extraction."
+    }
+  ],
+  "paths": {
+    "/v1/products/company-risk": {
+      "post": {
+        "summary": "Company Risk Score ($0.35)",
+        "description": "Know if a company has regulatory problems before you do business with them. One call checks EPA violations, OSHA workplace safety, CFPB consumer complaints, federal court litigation, international sanctions, and corporate entity validation. Returns a 0-100 risk score, letter grade (A-F), per-signal breakdown, and specific flags. Replaces hours of manual compliance research with a 10-second API call.",
+        "operationId": "companyrisk",
+        "tags": [
+          "Intelligence Products"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Company name",
+                    "example": "ExxonMobil"
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "Two-letter US state code",
+                    "example": "TX"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Company Risk Score report",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                },
+                "example": {
+                  "product": "company-risk",
+                  "entity": "ExxonMobil",
+                  "score": 20,
+                  "grade": "B",
+                  "summary": "ExxonMobil has 1 risk signal across 6 sources. Score: 20/100 (B).",
+                  "signals": {
+                    "environmental": {
+                      "status": "clean",
+                      "count": 0
+                    },
+                    "workplace_safety": {
+                      "status": "clean",
+                      "count": 0
+                    },
+                    "consumer_complaints": {
+                      "status": "clean",
+                      "count": 0
+                    },
+                    "litigation": {
+                      "status": "flag",
+                      "count": 2334,
+                      "detail": "2,334 CourtListener matches"
+                    },
+                    "sanctions": {
+                      "status": "clean",
+                      "count": 0
+                    },
+                    "entity_validation": {
+                      "status": "warning",
+                      "detail": "No LEI"
+                    }
+                  },
+                  "flags": [
+                    "Federal court presence (2,334 total matching cases)"
+                  ],
+                  "confidence": 1.0,
+                  "latencyMs": 10586,
+                  "adapters_queried": [
+                    "epa",
+                    "osha",
+                    "cfpb",
+                    "courtlistener",
+                    "opensanctions",
+                    "gleif"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/products/political-intel": {
+      "post": {
+        "summary": "Political Intelligence ($0.35)",
+        "description": "Map any entity's political footprint in one call. Surfaces FEC campaign contributions, federal government contracts via USASpending, Federal Register regulatory mentions, and Congressional bill references. Returns a political exposure score with channel-by-channel breakdown. Essential for lobbying disclosure, political risk assessment, and government relations research.",
+        "operationId": "politicalintel",
+        "tags": [
+          "Intelligence Products"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Entity name (company, person, or organization)",
+                    "example": "Lockheed Martin"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Political Intelligence report",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                },
+                "example": {
+                  "product": "political-intel",
+                  "entity": "Lockheed Martin",
+                  "score": 30,
+                  "grade": "B",
+                  "summary": "Lockheed Martin has political activity across 2 channels. Score: 30/100.",
+                  "signals": {
+                    "campaign_finance": {
+                      "status": "clean",
+                      "count": 0
+                    },
+                    "federal_contracts": {
+                      "status": "flag",
+                      "count": 5
+                    },
+                    "regulatory_mentions": {
+                      "status": "warning",
+                      "count": 5
+                    },
+                    "legislative_mentions": {
+                      "status": "clean",
+                      "count": 0
+                    }
+                  },
+                  "flags": [
+                    "5 federal contracts",
+                    "5 Federal Register mentions"
+                  ],
+                  "confidence": 0.85,
+                  "latencyMs": 297
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/products/supply-chain-risk": {
+      "post": {
+        "summary": "Supply Chain Risk ($0.30)",
+        "description": "Screen a supplier before you sign the contract. Checks OSHA labor violations, EPA environmental compliance, SAM.gov federal debarment status, and FMCSA carrier safety ratings. Flags critical issues \u2014 debarment, unsatisfactory safety ratings, repeat violations. Built for procurement teams, vendor onboarding workflows, and supply chain compliance automation.",
+        "operationId": "supplychainrisk",
+        "tags": [
+          "Intelligence Products"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Supplier or vendor name",
+                    "example": "FedEx"
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "Two-letter US state code",
+                    "example": "TN"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Supply Chain Risk report",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                },
+                "example": {
+                  "product": "supply-chain-risk",
+                  "entity": "FedEx",
+                  "score": 0,
+                  "grade": "A",
+                  "summary": "FedEx shows no significant supply chain risk signals. Score: 0/100.",
+                  "signals": {
+                    "labor_safety": {
+                      "status": "clean",
+                      "count": 0
+                    },
+                    "environmental": {
+                      "status": "clean",
+                      "count": 0
+                    },
+                    "debarment": {
+                      "status": "clean"
+                    },
+                    "carrier_safety": {
+                      "status": "clean"
+                    }
+                  },
+                  "flags": [],
+                  "confidence": 0.8,
+                  "latencyMs": 12483
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/products/healthcare-ddil": {
+      "post": {
+        "summary": "Healthcare Provider Due Diligence ($0.30)",
+        "description": "Verify a healthcare provider's credentials and risk profile in one call. Checks NPI registry (8M+ providers), CMS Medicare billing patterns, FDA drug adverse events, and CFPB consumer complaints. Returns credential verification status, billing activity summary, and risk flags. Built for credentialing, payer contracting, and healthcare M&A due diligence.",
+        "operationId": "healthcareddil",
+        "tags": [
+          "Intelligence Products"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Provider or org name",
+                    "example": "Mayo Clinic"
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "Two-letter US state code",
+                    "example": "MN"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Healthcare Provider Due Diligence report",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                },
+                "example": {
+                  "product": "healthcare-ddil",
+                  "entity": "Mayo Clinic",
+                  "score": 24,
+                  "grade": "B",
+                  "summary": "Provider verified (NPI found). 3 FDA drug adverse events. Score: 24/100.",
+                  "signals": {
+                    "credentials": {
+                      "status": "clean",
+                      "count": 5
+                    },
+                    "medicare_billing": {
+                      "status": "clean",
+                      "count": 5
+                    },
+                    "drug_enforcement": {
+                      "status": "warning",
+                      "count": 3
+                    },
+                    "consumer_complaints": {
+                      "status": "clean",
+                      "count": 0
+                    }
+                  },
+                  "flags": [
+                    "3 FDA drug adverse events"
+                  ],
+                  "confidence": 0.85,
+                  "latencyMs": 2214
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/products/nonprofit-intel": {
+      "post": {
+        "summary": "Nonprofit Intelligence ($0.20)",
+        "description": "Get the real financial picture of any nonprofit before you donate, grant, or partner. Pulls IRS 990 data \u2014 revenue, expenses, assets \u2014 from the most recent filing, with automatic entity resolution to find the right org. Adds GLEIF corporate validation, CFPB complaints, and federal court litigation. Returns financials, risk flags, and a transparency score. Built for donor due diligence and grant evaluation.",
+        "operationId": "nonprofitintel",
+        "tags": [
+          "Intelligence Products"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Nonprofit organization name",
+                    "example": "Red Cross"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Nonprofit Intelligence report",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                },
+                "example": {
+                  "product": "nonprofit-intel",
+                  "entity": "Red Cross",
+                  "score": 20,
+                  "grade": "B",
+                  "summary": "Red Cross: Revenue $3217.1M, Expenses $2971.1M, Assets $4028.3M (FY2023). Federal court presence (78,290 total matching cases).",
+                  "signals": {
+                    "financials": {
+                      "status": "clean",
+                      "detail": "American National Red Cross | Revenue: $3217.1M | Expenses: $2971.1M | Assets: $4028.3M (FY2023)"
+                    },
+                    "entity_validation": {
+                      "status": "warning",
+                      "detail": "No LEI"
+                    },
+                    "complaints": {
+                      "status": "clean",
+                      "count": 0
+                    },
+                    "litigation": {
+                      "status": "flag",
+                      "count": 78290
+                    }
+                  },
+                  "flags": [
+                    "Federal court presence (78,290 total matching cases)"
+                  ],
+                  "confidence": 0.85,
+                  "latencyMs": 935
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/fec": {
+      "post": {
+        "summary": "FEC Campaign Finance ($0.02)",
+        "description": "Search Federal Election Commission records \u2014 500K+ candidates, political committees, and contribution records. Find who's donating to whom, track PAC activity, and pull campaign spending data.",
+        "operationId": "fec",
+        "tags": [
+          "Government Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "candidates",
+                          "committees",
+                          "contributions"
+                        ],
+                        "example": "candidates"
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "Sanders"
+                      },
+                      "state": {
+                        "type": "string",
+                        "example": "VT"
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "example": 5
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "fec results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/epa": {
+      "post": {
+        "summary": "EPA Environmental Data ($0.02)",
+        "description": "Check any US facility's environmental compliance record. Violations, inspections, emissions data, and enforcement actions. Search by company name, state, or ZIP. Essential for ESG screening and environmental due diligence.",
+        "operationId": "epa",
+        "tags": [
+          "Government Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "Chevron"
+                      },
+                      "state": {
+                        "type": "string",
+                        "example": "CA"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "epa results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/osha": {
+      "post": {
+        "summary": "OSHA Workplace Safety ($0.02)",
+        "description": "Look up workplace safety records for any US employer. Inspection results, violation types, penalty amounts, and enforcement history. Critical for vendor screening, M&A due diligence, and labor compliance.",
+        "operationId": "osha",
+        "tags": [
+          "Government Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "Amazon"
+                      },
+                      "state": {
+                        "type": "string"
+                      },
+                      "limit": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "osha results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/sec": {
+      "post": {
+        "summary": "SEC Corporate Filings ($0.01)",
+        "description": "Pull SEC EDGAR filings by ticker symbol \u2014 10-Ks, 10-Qs, 8-Ks. Built-in ticker-to-CIK resolution with 40+ pre-cached symbols.",
+        "operationId": "sec",
+        "tags": [
+          "Financial Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "ticker": {
+                        "type": "string",
+                        "example": "MSFT"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "sec results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/bls": {
+      "post": {
+        "summary": "BLS Labor Statistics ($0.01)",
+        "description": "Bureau of Labor Statistics \u2014 unemployment rates, CPI, employment by industry. Economic indicators for any US region or sector.",
+        "operationId": "bls",
+        "tags": [
+          "Government Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "seriesId": {
+                        "type": "string",
+                        "example": "LNS14000000"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "bls results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/census": {
+      "post": {
+        "summary": "Census Bureau ($0.02)",
+        "description": "US Census demographics \u2014 population, income, housing, education statistics by geography. ACS 5-year estimates and decennial data.",
+        "operationId": "census",
+        "tags": [
+          "Government Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "dataset": {
+                        "type": "string",
+                        "example": "acs/acs5"
+                      },
+                      "year": {
+                        "type": "string",
+                        "example": "2022"
+                      },
+                      "variables": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "NAME",
+                          "B01001_001E"
+                        ]
+                      },
+                      "geography": {
+                        "type": "string",
+                        "example": "state:06"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "census results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/npi": {
+      "post": {
+        "summary": "NPI Provider Lookup ($0.02)",
+        "description": "Search the National Provider Identifier registry \u2014 8M+ US healthcare providers by name, specialty, state, or NPI number. Returns credentials, taxonomy codes, practice addresses.",
+        "operationId": "npi",
+        "tags": [
+          "Healthcare Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "Smith"
+                      },
+                      "state": {
+                        "type": "string",
+                        "example": "CA"
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "example": 5
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "npi results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/cms-payments": {
+      "post": {
+        "summary": "CMS Medicare Payments ($0.02)",
+        "description": "CMS Medicare provider payment data \u2014 reimbursement amounts, utilization patterns, and provider-level billing activity.",
+        "operationId": "cmspayments",
+        "tags": [
+          "Healthcare Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "Mayo Clinic"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "cms-payments results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/fda": {
+      "post": {
+        "summary": "FDA Drug Data ($0.02)",
+        "description": "Search FDA adverse event reports, drug product labels, and recall notices. Track safety signals for any medication. Essential for pharmacovigilance and regulatory monitoring.",
+        "operationId": "fda",
+        "tags": [
+          "Healthcare Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "drug": {
+                        "type": "string",
+                        "example": "aspirin"
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "example": 3
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "fda results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/fda-food": {
+      "post": {
+        "summary": "FDA Food Enforcement ($0.02)",
+        "description": "FDA food enforcement \u2014 recalls, market withdrawals, safety alerts for food products. Track contamination events and enforcement actions.",
+        "operationId": "fdafood",
+        "tags": [
+          "Government Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "example": "salmonella"
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "example": 5
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "fda-food results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/cfpb": {
+      "post": {
+        "summary": "CFPB Consumer Complaints ($0.02)",
+        "description": "See what consumers are complaining about at any financial company. Complaint types, outcomes, narratives, resolution status. Early warning system for reputational and regulatory risk.",
+        "operationId": "cfpb",
+        "tags": [
+          "Financial Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "company": {
+                        "type": "string",
+                        "example": "Wells Fargo"
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "example": 5
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "cfpb results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/courtlistener": {
+      "post": {
+        "summary": "CourtListener Federal Courts ($0.03)",
+        "description": "Search federal court records across every US jurisdiction. Opinions, dockets, and case search via CourtListener's 8M+ document corpus. Find litigation history for any company, person, or legal topic.",
+        "operationId": "courtlistener",
+        "tags": [
+          "Legal Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "example": "patent infringement"
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "example": 3
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "courtlistener results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/propublica-990": {
+      "post": {
+        "summary": "ProPublica Nonprofit 990s ($0.02)",
+        "description": "Look up any nonprofit's IRS 990 tax filing. Revenue, expenses, assets, executive compensation \u2014 automatically enriched with latest filing data and smart entity resolution.",
+        "operationId": "propublica990",
+        "tags": [
+          "Financial Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "Red Cross"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "propublica-990 results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/gleif": {
+      "post": {
+        "summary": "GLEIF Corporate LEI ($0.02)",
+        "description": "Legal Entity Identifiers \u2014 corporate ownership, entity registration, and cross-border identification via the Global LEI Foundation.",
+        "operationId": "gleif",
+        "tags": [
+          "Financial Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "Apple Inc"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "gleif results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/fema": {
+      "post": {
+        "summary": "FEMA Disasters ($0.02)",
+        "description": "FEMA disaster declarations \u2014 historical and current emergency management data for any US location. Track disaster patterns by state or type.",
+        "operationId": "fema",
+        "tags": [
+          "Government Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "state": {
+                        "type": "string",
+                        "example": "CA"
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "example": 5
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "fema results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/nhtsa": {
+      "post": {
+        "summary": "NHTSA Vehicle Safety ($0.02)",
+        "description": "Vehicle recalls, consumer complaints, and safety investigations from NHTSA. Search by make, model, or year.",
+        "operationId": "nhtsa",
+        "tags": [
+          "Government Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "example": "complaints"
+                      },
+                      "make": {
+                        "type": "string",
+                        "example": "Tesla"
+                      },
+                      "model": {
+                        "type": "string",
+                        "example": "Model 3"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "nhtsa results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/worldbank": {
+      "post": {
+        "summary": "World Bank Economic Data ($0.02)",
+        "description": "Development indicators \u2014 GDP, population, trade, health metrics for 200+ countries. Time-series economic data.",
+        "operationId": "worldbank",
+        "tags": [
+          "Government Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "country": {
+                        "type": "string",
+                        "example": "US"
+                      },
+                      "indicator": {
+                        "type": "string",
+                        "example": "NY.GDP.MKTP.CD"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "worldbank results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/usgs": {
+      "post": {
+        "summary": "USGS Earthquake Data ($0.01)",
+        "description": "Real-time and historical seismic events worldwide. Magnitude, depth, location, and timestamp for every recorded earthquake.",
+        "operationId": "usgs",
+        "tags": [
+          "Government Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "minmagnitude": {
+                        "type": "string",
+                        "example": "5"
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "example": 5
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "usgs results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/usaspending": {
+      "post": {
+        "summary": "USASpending Federal Contracts ($0.01)",
+        "description": "Federal contract and grant data \u2014 track government spending by agency, recipient, or program via USASpending.gov.",
+        "operationId": "usaspending",
+        "tags": [
+          "Government Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "keyword": {
+                        "type": "string",
+                        "example": "defense"
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "example": 5
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "usaspending results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/sam": {
+      "post": {
+        "summary": "SAM.gov Entity Data ($0.01)",
+        "description": "Federal contractor registration, exclusions (debarment), and entity validation via SAM.gov.",
+        "operationId": "sam",
+        "tags": [
+          "Government Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "Lockheed"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "sam results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/opensanctions": {
+      "post": {
+        "summary": "OpenSanctions ($0.03)",
+        "description": "Screen any person or entity against global sanctions lists, PEP databases, and watchlists. Covers OFAC, EU, UN, and 30+ national regimes. Critical for KYC/AML compliance.",
+        "operationId": "opensanctions",
+        "tags": [
+          "Compliance Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "Vladimir Putin"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "opensanctions results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/federal-register": {
+      "post": {
+        "summary": "Federal Register ($0.02)",
+        "description": "Search proposed rules, final rules, and notices from the Federal Register. Track regulatory changes affecting any industry. Early warning for compliance teams.",
+        "operationId": "federalregister",
+        "tags": [
+          "Government Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "example": "artificial intelligence"
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "example": 5
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "federal-register results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/clinical-trials": {
+      "post": {
+        "summary": "ClinicalTrials.gov ($0.02)",
+        "description": "Search 600K+ clinical studies by condition, intervention, sponsor, or keyword. Track trial status, enrollment, and results. Pharma competitive intelligence.",
+        "operationId": "clinicaltrials",
+        "tags": [
+          "Healthcare Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "example": "cancer immunotherapy"
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "example": 5
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "clinical-trials results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/fdic": {
+      "post": {
+        "summary": "FDIC Bank Data ($0.02)",
+        "description": "Look up any FDIC-insured institution \u2014 financials, branch locations, holding company structure, regulatory status.",
+        "operationId": "fdic",
+        "tags": [
+          "Financial Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "JPMorgan"
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "example": 5
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "fdic results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/noaa": {
+      "post": {
+        "summary": "NOAA Climate Data ($0.02)",
+        "description": "Historical weather and climate observations from NOAA. Temperature, precipitation, severe weather by station or city name.",
+        "operationId": "noaa",
+        "tags": [
+          "Government Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "city": {
+                        "type": "string",
+                        "example": "Los Angeles"
+                      },
+                      "datatype": {
+                        "type": "string",
+                        "example": "TAVG"
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "example": 10
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "noaa results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/congress": {
+      "post": {
+        "summary": "Congress.gov ($0.02)",
+        "description": "Search Congressional bills, resolutions, and legislative activity. Track legislation by topic, sponsor, or keyword.",
+        "operationId": "congress",
+        "tags": [
+          "Government Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "example": "bills"
+                      },
+                      "query": {
+                        "type": "string",
+                        "example": "artificial intelligence"
+                      },
+                      "limit": {
+                        "type": "integer",
+                        "example": 3
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "congress results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/college-scorecard": {
+      "post": {
+        "summary": "College Scorecard ($0.02)",
+        "description": "Department of Education data \u2014 tuition, graduation rates, post-graduation earnings, admission rates for every US college.",
+        "operationId": "collegescorecard",
+        "tags": [
+          "Government Data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "MIT"
+                      },
+                      "state": {
+                        "type": "string",
+                        "example": "MA"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "college-scorecard results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/assertion-router": {
+      "post": {
+        "summary": "Assertion Router ($0.05)",
+        "description": "The decision gate every AI pipeline needs. Classifies any claim into ASSERT (high confidence), PROBABILISTIC (hedge it), INVESTIGATIVE (research first), or REFUSE (below quality floor). Prevents your AI from asserting things it shouldn't.",
+        "operationId": "assertionrouter",
+        "tags": [
+          "AI Reasoning Engines"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "claim": {
+                        "type": "string",
+                        "example": "The Earth is flat"
+                      },
+                      "context": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "assertion-router result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/gscore": {
+      "post": {
+        "summary": "G-Score Quality Assessment ($0.05)",
+        "description": "Quantified quality scoring for AI outputs. Evaluates on 7 weighted axes: evidence, reasoning, calibration, source quality, domain fit, coherence, meta-cognition. Returns 0-1 composite score.",
+        "operationId": "gscore",
+        "tags": [
+          "AI Reasoning Engines"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "example": "AI will replace all jobs by 2030"
+                      },
+                      "domain": {
+                        "type": "string",
+                        "example": "economics"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "gscore result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/tribunal": {
+      "post": {
+        "summary": "Tribunal Deliberation ($0.15)",
+        "description": "Multi-perspective AI deliberation. Advocate, critic, and analyst roles examine a question from competing angles, then synthesize a verdict. Structured adversarial reasoning as a service.",
+        "operationId": "tribunal",
+        "tags": [
+          "AI Reasoning Engines"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "question": {
+                        "type": "string",
+                        "example": "Should we invest in quantum computing?"
+                      },
+                      "perspectives": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "advocate",
+                          "critic",
+                          "analyst"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tribunal result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/postcog": {
+      "post": {
+        "summary": "POSTCOG Safety Gate ($0.08)",
+        "description": "Should your AI agent take this action? Assesses recoverability, blast radius, downstream consequences. Returns PROCEED, GATE, or BLOCK with a recoverability score. The safety layer for autonomous agents.",
+        "operationId": "postcog",
+        "tags": [
+          "AI Reasoning Engines"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "type": "string",
+                        "example": "Delete production database"
+                      },
+                      "context": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "postcog result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/whetstone": {
+      "post": {
+        "summary": "WHETSTONE Adversarial Challenge ($0.08)",
+        "description": "Generates the strongest possible counterargument to any position. Not a gentle devil's advocate \u2014 finds the most credible, evidence-based challenge. Built for red-teaming and defeating confirmation bias.",
+        "operationId": "whetstone",
+        "tags": [
+          "AI Reasoning Engines"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "position": {
+                        "type": "string",
+                        "example": "Remote work is always more productive"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "whetstone result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/tessryx": {
+      "post": {
+        "summary": "TESSRYX Gap Detection ($0.05)",
+        "description": "Finds what should be known but isn't. Identifies missing information, prediction errors, and knowledge gaps \u2014 ranked by importance with research warrants. The investigative instinct your AI is missing.",
+        "operationId": "tessryx",
+        "tags": [
+          "AI Reasoning Engines"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "entity": {
+                        "type": "string",
+                        "example": "Boeing"
+                      },
+                      "domain": {
+                        "type": "string",
+                        "example": "regulatory compliance"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "tessryx result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/verify": {
+      "post": {
+        "summary": "Claim Verification ($0.05)",
+        "description": "Fact-check any claim with evidence chains. Returns verdict (true/false/unverifiable), confidence score, and evidence chain. The trust layer between your AI's output and your user.",
+        "operationId": "verify",
+        "tags": [
+          "AI Reasoning Engines"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "claim": {
+                        "type": "string",
+                        "example": "Amazon was founded in 1994"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "verify result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/signal-diversity": {
+      "post": {
+        "summary": "Signal Diversity Analysis ($0.15)",
+        "description": "Anti-groupthink for AI pipelines. Feed multiple AI responses \u2014 identifies dominant views, dissenting opinions, blind spots, injects novel perspectives. Detects and defeats convergent AI behavior.",
+        "operationId": "signaldiversity",
+        "tags": [
+          "AI Reasoning Engines"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "responses": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "question": {
+                        "type": "string",
+                        "example": "What caused the 2008 financial crisis?"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "signal-diversity result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/oracle-router": {
+      "post": {
+        "summary": "ORACLE Router ($0.05)",
+        "description": "Entropy-minimizing model dispatch. Given a task, recommends optimal routing \u2014 DIRECT, CASCADE, TRIBUNAL, or PARALLEL \u2014 with model selection and cost estimates.",
+        "operationId": "oraclerouter",
+        "tags": [
+          "AI Reasoning Engines"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "task": {
+                        "type": "string",
+                        "example": "Summarize a 50-page legal document"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "oracle-router result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/dap": {
+      "post": {
+        "summary": "DAP Pipeline Quality Gate ($0.05)",
+        "description": "Deliberative Assembly Protocol \u2014 PASS/WARN/FAIL/RECOVER gate decisions for AI pipeline outputs. Quality assurance for autonomous workflows.",
+        "operationId": "dap",
+        "tags": [
+          "AI Reasoning Engines"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "pipeline_output": {
+                        "type": "string"
+                      },
+                      "quality_floor": {
+                        "type": "number",
+                        "example": 0.7
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "dap result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/homeostasis": {
+      "post": {
+        "summary": "Homeostasis System State ($0.05)",
+        "description": "Operational mode detection: CRISIS, DEEP_WORK, ROUTINE, RECOVERY, EXPLORE \u2014 with transition probabilities and recommended actions. Adaptive system profiling.",
+        "operationId": "homeostasis",
+        "tags": [
+          "AI Reasoning Engines"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "metrics": {
+                        "type": "object",
+                        "example": {
+                          "error_rate": 0.05,
+                          "latency_p99": 200
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "homeostasis result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/adapters/web-extract": {
+      "post": {
+        "summary": "Web Extract ($0.03)",
+        "description": "Intelligent web extraction \u2014 HTML parse with optional LLM schema extraction. Pull structured data from any webpage. No headless browser required.",
+        "operationId": "webextract",
+        "tags": [
+          "Data Extraction"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "url": {
+                        "type": "string",
+                        "example": "https://example.com"
+                      },
+                      "schema": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "web-extract result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ProductResponse": {
+        "type": "object",
+        "properties": {
+          "product": {
+            "type": "string"
+          },
+          "entity": {
+            "type": "string"
+          },
+          "score": {
+            "type": "integer",
+            "description": "0-100 risk/exposure score"
+          },
+          "grade": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "D",
+              "F"
+            ]
+          },
+          "summary": {
+            "type": "string"
+          },
+          "signals": {
+            "type": "object"
+          },
+          "flags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "confidence": {
+            "type": "number"
+          },
+          "latencyMs": {
+            "type": "integer"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "adapters_queried": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "AdapterResponse": {
+        "type": "object",
+        "properties": {
+          "adapter": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          },
+          "entities": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "latencyMs": {
+            "type": "integer"
+          },
+          "cached": {
+            "type": "boolean"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}
